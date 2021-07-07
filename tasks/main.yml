@@ -1,0 +1,63 @@
+---
+# tasks file for ./roles/ssh
+
+- name: install ssh dependencies
+  become: yes
+  apt:
+    pkg: "{{ ssh_package_dependencies }}"
+    state: present
+    force_apt_get: yes # apt-get instead of aptitude
+    update_cache: yes
+  when: ssh_package_dependencies is defined and (ssh_package_dependencies | length>0)
+  register: task1
+  tags: ssh
+
+- name: "copy sshd_config template"
+  become: yes
+  template:
+    src: sshd_config.config.j2
+    dest: "{{ ssh_directory }}/sshd_config"
+    backup: yes
+    owner: root
+    group: root
+    mode: "0644"
+  register: task2
+  tags: ssh
+
+- name: "ensures {{ ssh_directory_home }}/config dir exists"
+  file:
+    path: "{{ ssh_directory_home }}"
+    state: directory
+  register: task3
+  tags: ssh
+
+- name: "copy ssh config template"
+  template:
+    src: config.config.j2
+    dest: "{{ ssh_directory_home }}/config"
+    mode: "0600"
+  register: task4
+  tags: ssh
+
+- name: "check ssh has short moduli (moduli >= {{ ssh_short_moduli }}, allowed)"
+  become: yes
+  shell: "awk '$5 < {{ ssh_short_moduli }} { exit 1 }' /etc/ssh/moduli"
+  changed_when: task5_check.rc == 1
+  failed_when: task5_check.rc == 2
+  ignore_errors: yes
+  register: task5_check
+  tags: ssh
+
+- name: "deactivate ssh short moduli in two commands (moduli >= {{ ssh_short_moduli }}, allowed)"
+  become: yes
+  shell: "awk '$5 >= {{ ssh_short_moduli }}' /etc/ssh/moduli > /etc/ssh/moduli.tmp && mv /etc/ssh/moduli.tmp /etc/ssh/moduli"
+  register: task5
+  when: task5_check.changed
+  tags: ssh
+
+- name: "restart openssh-server"
+  shell: echo "this task will restart the ssh services"
+  notify:
+    - restart ssh
+  when: task1.changed or task2.changed or task4.changed or task5.changed
+  tags: ssh

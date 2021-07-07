@@ -1,0 +1,147 @@
+#       $OpenBSD: sshd_config,v 1.101 2017/03/14 07:19:07 djm Exp $
+
+# This is the sshd server system-wide configuration file.  See
+# sshd_config(5) for more information.
+
+# This sshd was compiled with PATH=/usr/bin:/bin:/usr/sbin:/sbin
+
+# The strategy used for options in the default sshd_config shipped with
+# OpenSSH is to specify options with their default value where
+# possible, but leave them commented.  Uncommented options override the
+# default value.
+
+Port {{ ssh_port }}
+#AddressFamily any
+#ListenAddress 0.0.0.0
+#ListenAddress ::
+
+# Supported HostKey algorithms by order of preference.
+HostKey /etc/ssh/ssh_host_ed25519_key
+HostKey /etc/ssh/ssh_host_rsa_key
+HostKey /etc/ssh/ssh_host_ecdsa_key
+
+# Ciphers and keying
+#RekeyLimit default none
+KexAlgorithms {{ ssh_kex_algorithms }}
+Ciphers {{ ssh_ciphers }}
+MACs {{ ssh_macs }}
+
+# Logging
+#SyslogFacility AUTH
+#LogLevel INFO
+# LogLevel VERBOSE logs user's key fingerprint on login. Needed to have a clear audit track of which key was using to log in.
+LogLevel VERBOSE
+
+# Authentication:
+
+#LoginGraceTime 2m
+#PermitRootLogin prohibit-password
+#StrictModes yes
+#MaxAuthTries 6
+#MaxSessions 10
+
+#PubkeyAuthentication yes
+
+# Password based logins are disabled - only public key based logins are allowed.
+AuthenticationMethods {{ ssh_authentication_methods }}
+
+# Root login is not allowed for auditing reasons. This is because it's difficult to track which process belongs to which root user:
+#
+# On Linux, user sessions are tracking using a kernel-side session id, however, this session id is not recorded by OpenSSH.
+# Additionally, only tools such as systemd and auditd record the process session id.
+# On other OSes, the user session id is not necessarily recorded at all kernel-side.
+# Using regular users in combination with /bin/su or /usr/bin/sudo ensure a clear audit track.
+PermitRootLogin {{ ssh_permit_root_login }}
+
+# Use kernel sandbox mechanisms where possible in unprivileged processes
+# Systrace on OpenBSD, Seccomp on Linux, seatbelt on MacOSX/Darwin, rlimit elsewhere.
+UsePrivilegeSeparation {{ ssh_use_privilege_separation }}
+
+# Expect .ssh/authorized_keys2 to be disregarded by default in future.
+#AuthorizedKeysFile     .ssh/authorized_keys .ssh/authorized_keys2
+
+#AuthorizedPrincipalsFile none
+
+#AuthorizedKeysCommand none
+#AuthorizedKeysCommandUser nobody
+
+# For this to work you will also need host keys in /etc/ssh/ssh_known_hosts
+#HostbasedAuthentication no
+# Change to yes if you don't trust ~/.ssh/known_hosts for
+# HostbasedAuthentication
+#IgnoreUserKnownHosts no
+# Don't read the user's ~/.rhosts and ~/.shosts files
+#IgnoreRhosts yes
+
+# To disable tunneled clear text passwords, change to no here!
+#PasswordAuthentication yes
+#PermitEmptyPasswords no
+
+# Change to yes to enable challenge-response passwords (beware issues with
+# some PAM modules and threads)
+ChallengeResponseAuthentication {{ ssh_challenge_response_authentication }}
+
+# Kerberos options
+#KerberosAuthentication no
+#KerberosOrLocalPasswd yes
+#KerberosTicketCleanup yes
+#KerberosGetAFSToken no
+
+# GSSAPI options
+#GSSAPIAuthentication no
+#GSSAPICleanupCredentials yes
+#GSSAPIStrictAcceptorCheck yes
+#GSSAPIKeyExchange no
+
+# Set this to 'yes' to enable PAM authentication, account processing,
+# and session processing. If this is enabled, PAM authentication will
+# be allowed through the ChallengeResponseAuthentication and
+# PasswordAuthentication.  Depending on your PAM configuration,
+# PAM authentication via ChallengeResponseAuthentication may bypass
+# the setting of "PermitRootLogin without-password".
+# If you just want the PAM account and session checks to run without
+# PAM authentication, then enable this but set PasswordAuthentication
+# and ChallengeResponseAuthentication to 'no'.
+UsePAM {{ ssh_use_PAM }}
+
+#AllowAgentForwarding yes
+#AllowTcpForwarding yes
+#GatewayPorts no
+X11Forwarding {{ ssh_x11_forwarding }}
+#X11DisplayOffset 10
+#X11UseLocalhost yes
+#PermitTTY yes
+PrintMotd {{ ssh_print_motd }}
+#PrintLastLog yes
+#TCPKeepAlive yes
+#UseLogin no
+#PermitUserEnvironment no
+#Compression delayed
+#ClientAliveInterval 0
+#ClientAliveCountMax 3
+UseDNS {{ ssh_use_dns }}
+#PidFile /var/run/sshd.pid
+#MaxStartups 10:30:100
+#PermitTunnel no
+#ChrootDirectory none
+#VersionAddendum none
+
+# no default banner path
+#Banner none
+
+# Allow client to pass locale environment variables
+AcceptEnv {{ ssh_accept_env }}
+
+# override default of no subsystems
+#Subsystem sftp  /usr/lib/openssh/sftp-server
+
+# Log sftp level file access (read/write/etc.) that would not be easily logged otherwise.
+Subsystem {{ ssh_subsystem }}
+
+# Example of overriding settings on a per-user basis
+#Match User anoncvs
+#       X11Forwarding no
+#       AllowTcpForwarding no
+#       PermitTTY no
+#       ForceCommand cvs server
+#PasswordAuthentication yes

@@ -1,0 +1,27 @@
+# ssh-keygen -t rsa -b 2048 -C "email@example.com"
+# ssh-keygen -t ed25519 -C "<comment>"
+# ------------------------------------------------------------------------------
+# Ensure KnownHosts are unreadable if leaked - it is otherwise easier to know which hosts your keys have access to.
+HashKnownHosts {{ ssh_hash_known_hosts }}
+# Host keys the client accepts - order here is honored by OpenSSH
+HostKeyAlgorithms {{ ssh_host_key_algorithms }}
+
+KexAlgorithms {{ ssh_user_kex_algorithms }}
+MACs {{ ssh_user_macs }}
+Ciphers {{ ssh_user_ciphers }}
+
+# ------------------------------------------------------------------------------
+
+Host *
+  User root
+  Port 22
+  LogLevel INFO
+  Compression yes
+  SendEnv LANG LC_*
+  HashKnownHosts yes
+  GSSAPIAuthentication yes
+  IdentitiesOnly yes
+  AddressFamily inet
+  Protocol 2
+  ServerAliveInterval 60
+  #DynamicForward <PORT>

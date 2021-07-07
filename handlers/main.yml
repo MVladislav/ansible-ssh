@@ -1,0 +1,10 @@
+---
+# handlers file for ./roles/ssh
+
+- name: restart ssh
+  become: yes
+  listen: restart ssh
+  service:
+    name: ssh
+    state: restarted
+    enabled: "{{ ssh_service_enabled }}"
