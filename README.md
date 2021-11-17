@@ -31,3 +31,15 @@ GNU AFFERO GENERAL PUBLIC LICENSE
 ## Author Information
 
 MVladislav
+
+## OTHER
+
+### deprecation remove
+
+```sh
+sed -i '/KeyRegenerationInterval/d' /etc/ssh/sshd_config
+sed -i '/ServerKeyBits/d' /etc/ssh/sshd_config
+sed -i '/RSAAuthentication/d' /etc/ssh/sshd_config
+sed -i '/RhostsRSAAuthentication/d' /etc/ssh/sshd_config
+sed -i '/UsePrivilegeSeparation/d' /etc/ssh/sshd_config
+```

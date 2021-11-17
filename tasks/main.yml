@@ -14,7 +14,7 @@
 
 - name: "copy sshd_config template"
   become: yes
-  template:
+  ansible.builtin.template:
     src: sshd_config.config.j2
     dest: "{{ ssh_directory }}/sshd_config"
     backup: yes
@@ -31,8 +31,8 @@
   register: task3
   tags: ssh
 
-- name: "copy ssh config template"
-  template:
+- name: "copy ssh config template for user"
+  ansible.builtin.template:
     src: config.config.j2
     dest: "{{ ssh_directory_home }}/config"
     mode: "0600"
@@ -55,9 +55,18 @@
   when: task5_check.changed
   tags: ssh
 
+- name: "recreate ssh_host_* files"
+  shell: "{{ item }}"
+  register: task6
+  loop: "{{ ssh_host_keys_func | flatten(levels=1) }}"
+
 - name: "restart openssh-server"
   shell: echo "this task will restart the ssh services"
   notify:
     - restart ssh
-  when: task1.changed or task2.changed or task4.changed or task5.changed
+  when: (task1 is defined and task1.changed) or (task2 is defined and task2.changed) or (task4 is defined and task4.changed) or (task5 is defined and task5.changed) or (task6 is defined and task6.changed)
   tags: ssh
+
+# configure fail2ban
+- name: config fail2ban
+  include: fail2ban.yml

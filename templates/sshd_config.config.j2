@@ -1,4 +1,4 @@
-#       $OpenBSD: sshd_config,v 1.101 2017/03/14 07:19:07 djm Exp $
+# {{ ansible_managed }}
 
 # This is the sshd server system-wide configuration file.  See
 # sshd_config(5) for more information.
@@ -10,55 +10,81 @@
 # possible, but leave them commented.  Uncommented options override the
 # default value.
 
-Port {{ ssh_port }}
+Include /etc/ssh/sshd_config.d/*.conf
+
+
+
+{% if ssh_port is defined %}
+LogLevel {{ ssh_port }}
+{% else %}
+#Port 22
+{% endif %}
 #AddressFamily any
 #ListenAddress 0.0.0.0
 #ListenAddress ::
 
 # Supported HostKey algorithms by order of preference.
-HostKey /etc/ssh/ssh_host_ed25519_key
-HostKey /etc/ssh/ssh_host_rsa_key
-HostKey /etc/ssh/ssh_host_ecdsa_key
+{% if ssh_host_keys is defined %}
+{% for key in ssh_host_keys %}
+HostKey {{ key }}
+{% endfor %}
+{% else %}
+#HostKey /etc/ssh/ssh_host_ed25519_key
+#HostKey /etc/ssh/ssh_host_ecdsa_key
+#HostKey /etc/ssh/ssh_host_rsa_key
+{% endif %}
+{% if ssh_host_key_algorithms is defined %}
+HostKeyAlgorithms {{ ssh_host_key_algorithms | join(',') }}
+{% endif %}
 
 # Ciphers and keying
 #RekeyLimit default none
-KexAlgorithms {{ ssh_kex_algorithms }}
-Ciphers {{ ssh_ciphers }}
-MACs {{ ssh_macs }}
+{% if ssh_ciphers is defined %}
+Ciphers {{ ssh_ciphers | join(',') }}
+{% endif %}
+{% if ssh_kex_algorithms is defined %}
+KexAlgorithms {{ ssh_kex_algorithms | join(',') }}
+{% endif %}
+{% if ssh_macs is defined %}
+MACs {{ ssh_macs | join(',') }}
+{% endif %}
 
 # Logging
 #SyslogFacility AUTH
-#LogLevel INFO
 # LogLevel VERBOSE logs user's key fingerprint on login. Needed to have a clear audit track of which key was using to log in.
-LogLevel VERBOSE
+{% if ssh_log_level is defined %}
+LogLevel {{ ssh_log_level }}
+{% else %}
+#LogLevel INFO
+{% endif %}
 
 # Authentication:
 
 #LoginGraceTime 2m
+{% if ssh_permit_root_login is defined %}
+PermitRootLogin {{ ssh_permit_root_login }}
+{% else %}
 #PermitRootLogin prohibit-password
+{% endif %}
+{% if ssh_strict_modes is defined %}
+StrictModes {{ ssh_strict_modes | ternary('yes', 'no') }}
+{% else %}
 #StrictModes yes
+{% endif %}
 #MaxAuthTries 6
 #MaxSessions 10
 
+{% if ssh_pubkey_authentication is defined %}
+PubkeyAuthentication {{ ssh_pubkey_authentication | ternary('yes', 'no') }}
+{% else %}
 #PubkeyAuthentication yes
-
-# Password based logins are disabled - only public key based logins are allowed.
-AuthenticationMethods {{ ssh_authentication_methods }}
-
-# Root login is not allowed for auditing reasons. This is because it's difficult to track which process belongs to which root user:
-#
-# On Linux, user sessions are tracking using a kernel-side session id, however, this session id is not recorded by OpenSSH.
-# Additionally, only tools such as systemd and auditd record the process session id.
-# On other OSes, the user session id is not necessarily recorded at all kernel-side.
-# Using regular users in combination with /bin/su or /usr/bin/sudo ensure a clear audit track.
-PermitRootLogin {{ ssh_permit_root_login }}
-
-# Use kernel sandbox mechanisms where possible in unprivileged processes
-# Systrace on OpenBSD, Seccomp on Linux, seatbelt on MacOSX/Darwin, rlimit elsewhere.
-UsePrivilegeSeparation {{ ssh_use_privilege_separation }}
+{% endif %}
+{% if ssh_pubkey_accepted_key_types is defined %}
+PubkeyAcceptedKeyTypes {{ ssh_pubkey_accepted_key_types | join(',') }}
+{% endif %}
 
 # Expect .ssh/authorized_keys2 to be disregarded by default in future.
-#AuthorizedKeysFile     .ssh/authorized_keys .ssh/authorized_keys2
+#AuthorizedKeysFile	.ssh/authorized_keys .ssh/authorized_keys2
 
 #AuthorizedPrincipalsFile none
 
@@ -74,12 +100,24 @@ UsePrivilegeSeparation {{ ssh_use_privilege_separation }}
 #IgnoreRhosts yes
 
 # To disable tunneled clear text passwords, change to no here!
+{% if ssh_password_authentication is defined %}
+PasswordAuthentication {{ ssh_password_authentication | ternary('yes', 'no') }}
+{% else %}
 #PasswordAuthentication yes
+{% endif %}
+{% if ssh_permit_empty_password is defined %}
+PermitEmptyPasswords {{ ssh_permit_empty_password | ternary('yes', 'no') }}
+{% else %}
 #PermitEmptyPasswords no
+{% endif %}
 
 # Change to yes to enable challenge-response passwords (beware issues with
 # some PAM modules and threads)
-ChallengeResponseAuthentication {{ ssh_challenge_response_authentication }}
+{% if ssh_challenge_response_authentication is defined %}
+ChallengeResponseAuthentication {{ ssh_challenge_response_authentication | ternary('yes', 'no') }}
+{% else %}
+ChallengeResponseAuthentication no
+{% endif %}
 
 # Kerberos options
 #KerberosAuthentication no
@@ -88,8 +126,16 @@ ChallengeResponseAuthentication {{ ssh_challenge_response_authentication }}
 #KerberosGetAFSToken no
 
 # GSSAPI options
+{% if ssh_gssapi_authentication is defined %}
+GSSAPIAuthentication {{ ssh_gssapi_authentication | ternary('yes', 'no') }}
+{% else %}
 #GSSAPIAuthentication no
+{% endif %}
+{% if ssh_gssapi_cleanup_credentials is defined %}
+GSSAPICleanupCredentials {{ ssh_gssapi_cleanup_credentials | ternary('yes', 'no') }}
+{% else %}
 #GSSAPICleanupCredentials yes
+{% endif %}
 #GSSAPIStrictAcceptorCheck yes
 #GSSAPIKeyExchange no
 
@@ -102,46 +148,102 @@ ChallengeResponseAuthentication {{ ssh_challenge_response_authentication }}
 # If you just want the PAM account and session checks to run without
 # PAM authentication, then enable this but set PasswordAuthentication
 # and ChallengeResponseAuthentication to 'no'.
-UsePAM {{ ssh_use_PAM }}
+{% if ssh_use_PAM is defined %}
+UsePAM {{ ssh_use_PAM | ternary('yes', 'no') }}
+{% else %}
+UsePAM yes
+{% endif %}
 
+
+{% if ssh_agent_forwarding is defined %}
+AllowAgentForwarding {{ ssh_agent_forwarding | ternary('yes', 'no') }}
+{% else %}
 #AllowAgentForwarding yes
+{% endif %}
+{% if ssh_tcp_forwarding is defined %}
+AllowTcpForwarding {{ ssh_tcp_forwarding | ternary('yes', 'no') }}
+{% else %}
 #AllowTcpForwarding yes
+{% endif %}
 #GatewayPorts no
-X11Forwarding {{ ssh_x11_forwarding }}
+{% if ssh_x11_forwarding is defined %}
+X11Forwarding {{ ssh_x11_forwarding | ternary('yes', 'no') }}
+{% else %}
+X11Forwarding yes
+{% endif %}
 #X11DisplayOffset 10
 #X11UseLocalhost yes
 #PermitTTY yes
-PrintMotd {{ ssh_print_motd }}
+{% if ssh_print_motd is defined %}
+PrintMotd {{ ssh_print_motd | ternary('yes', 'no') }}
+{% else %}
+PrintMotd no
+{% endif %}
 #PrintLastLog yes
 #TCPKeepAlive yes
-#UseLogin no
 #PermitUserEnvironment no
 #Compression delayed
 #ClientAliveInterval 0
 #ClientAliveCountMax 3
-UseDNS {{ ssh_use_dns }}
+{% if ssh_use_dns is defined %}
+UseDNS {{ ssh_use_dns | ternary('yes', 'no') }}
+{% else %}
+#UseDNS no
+{% endif %}
 #PidFile /var/run/sshd.pid
 #MaxStartups 10:30:100
 #PermitTunnel no
 #ChrootDirectory none
 #VersionAddendum none
 
+{% if ssh_banner is defined and ssh_banner.dest is defined %}
+Banner {{ ssh_banner.dest }}
+{% else %}
 # no default banner path
 #Banner none
+{% endif %}
 
 # Allow client to pass locale environment variables
+{% if ssh_accept_env is defined %}
 AcceptEnv {{ ssh_accept_env }}
+{% else %}
+AcceptEnv LANG LC_*
+{% endif %}
+
+
+{% if ssh_subsystems is defined %}
+{% if ssh_subsystems | length %}
+
+{% for subsystem in ssh_subsystems %}
+Subsystem	{{ subsystem.name }}	{{ subsystem.command }}
+{% endfor %}
+{% endif %}
+{% else %}
 
 # override default of no subsystems
-#Subsystem sftp  /usr/lib/openssh/sftp-server
+Subsystem	sftp	/usr/lib/ssh/sftp-server
+{% endif %}
 
-# Log sftp level file access (read/write/etc.) that would not be easily logged otherwise.
-Subsystem {{ ssh_subsystem }}
+{% if ssh_users is defined %}
+{% for user in ssh_users %}
+Match User {{ user.name }}
+{% if user.settings is defined %}
+{% for key, value in user.settings.items() %}
+        {{ key }} {{ value }}
+{% endfor %}
+{% endif %}
+{% if user.authorized_keys is defined %}
+        AuthorizedKeysFile /etc/ssh/authorized_keys/{{ user.name }}
+{% endif %}
+{% if not loop.last %}
 
+{% endif %}
+{% endfor %}
+{% else %}
 # Example of overriding settings on a per-user basis
 #Match User anoncvs
-#       X11Forwarding no
-#       AllowTcpForwarding no
-#       PermitTTY no
-#       ForceCommand cvs server
-#PasswordAuthentication yes
+#	X11Forwarding no
+#	AllowTcpForwarding no
+#	PermitTTY no
+#	ForceCommand cvs server
+{% endif %}

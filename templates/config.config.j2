@@ -2,13 +2,26 @@
 # ssh-keygen -t ed25519 -C "<comment>"
 # ------------------------------------------------------------------------------
 # Ensure KnownHosts are unreadable if leaked - it is otherwise easier to know which hosts your keys have access to.
-HashKnownHosts {{ ssh_hash_known_hosts }}
-# Host keys the client accepts - order here is honored by OpenSSH
-HostKeyAlgorithms {{ ssh_host_key_algorithms }}
+{% if ssh_host_key_algorithms is defined %}
+HashKnownHosts {{ ssh_hash_known_hosts | ternary('yes', 'no') }}
+{% else %}
+#HashKnownHosts no
+{% endif %}
 
-KexAlgorithms {{ ssh_user_kex_algorithms }}
-MACs {{ ssh_user_macs }}
-Ciphers {{ ssh_user_ciphers }}
+# Host keys the client accepts - order here is honored by OpenSSH
+{% if ssh_host_key_algorithms is defined %}
+HostKeyAlgorithms {{ ssh_host_key_algorithms | join(',') }}
+{% endif %}
+
+{% if ssh_user_kex_algorithms is defined %}
+KexAlgorithms {{ ssh_user_kex_algorithms | join(',') }}
+{% endif %}
+{% if ssh_user_macs is defined %}
+MACs {{ ssh_user_macs | join(',') }}
+{% endif %}
+{% if ssh_user_ciphers is defined %}
+Ciphers {{ ssh_user_ciphers | join(',') }}
+{% endif %}
 
 # ------------------------------------------------------------------------------
 

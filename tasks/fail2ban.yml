@@ -1,0 +1,26 @@
+---
+# tasks file for ./roles/ssh
+
+- name: install fail2ban dependencies
+  become: yes
+  apt:
+    pkg: fail2ban
+    state: present
+    force_apt_get: yes # apt-get instead of aptitude
+    update_cache: yes
+  tags:
+    - ssh
+    - fail2ban
+
+- name: Override some basic fail2ban configurations
+  become: yes
+  ansible.builtin.template:
+    src: jail.local.j2
+    dest: /etc/fail2ban/jail.local
+    backup: yes
+    owner: root
+    group: root
+    mode: "0644"
+  tags:
+    - ssh
+    - fail2ban
