@@ -35,9 +35,9 @@ ssh_host_keys:
   - /etc/ssh/ssh_host_ed25519_key
 # HINT: if ssh_host_keys is set also define to recreate the files to make them more secure
 ssh_host_keys_func:
-  - rm /etc/ssh/ssh_host_*
-  - ssh-keygen -t ed25519 -f /etc/ssh/ssh_host_ed25519_key -N "" <<< y
-  - ssh-keygen -t rsa -b 4096 -f /etc/ssh/ssh_host_rsa_key -N "" <<< y
+  - rm -f /etc/ssh/ssh_host_*
+  - ssh-keygen -t ed25519 -f /etc/ssh/ssh_host_ed25519_key -N ''
+  - ssh-keygen -t rsa -b 4096 -f /etc/ssh/ssh_host_rsa_key -N ''
 
 ssh_ciphers:
   - chacha20-poly1305@openssh.com
