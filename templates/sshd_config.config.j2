@@ -12,10 +12,8 @@
 
 Include /etc/ssh/sshd_config.d/*.conf
 
-
-
 {% if ssh_port is defined %}
-LogLevel {{ ssh_port }}
+Port {{ ssh_port }}
 {% else %}
 #Port 22
 {% endif %}
