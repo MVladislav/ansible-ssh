@@ -2,9 +2,6 @@
 # tasks file for ./roles/ssh
 
 # configure ssh
-- name: config ssh
-  include: ssh.yml
-
 - name: config ssh (and per user)
   include: ssh.yml
   loop: "{{ clients | flatten(levels=1) }}"
