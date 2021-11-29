@@ -11,7 +11,7 @@ ssh_package_dependencies:
 
 # ------------------------------------------------------------------------------
 ssh_directory: /etc/ssh
-ssh_directory_home: ~/.ssh
+# ssh_directory_home: "$HOME/.ssh"
 
 # ------------------------------------------------------------------------------
 ssh_short_moduli: 3071
