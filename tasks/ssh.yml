@@ -2,7 +2,7 @@
 # tasks file for ./roles/ssh
 
 - name: install ssh dependencies
-  become: yes
+  become: true
   apt:
     pkg: "{{ ssh_package_dependencies }}"
     state: present
@@ -13,7 +13,7 @@
   tags: ssh
 
 # - name: "get user home dir (for user {{ outer_item.name }})"
-#   become: yes
+#   become: true
 #   shell: >
 #     getent passwd {{ outer_item.name }} | awk -F: '{ print $6 }'
 #   # become_user: "{{ outer_item.name }}"
@@ -26,7 +26,7 @@
 #   when: task_user_home is defined and task_user_home.stdout_lines is defined
 
 - name: "ensures ~/.ssh/config dir exists (for user {{ outer_item.name }})"
-  become: yes
+  become: true
   become_user: "{{ outer_item.name }}"
   ansible.builtin.file:
     path: "~/.ssh"
@@ -40,7 +40,7 @@
     - ssh-user
 
 - name: "copy ssh config template for user (for user {{ outer_item.name }})"
-  become: yes
+  become: true
   become_user: "{{ outer_item.name }}"
   ansible.builtin.template:
     src: config.config.j2
@@ -54,7 +54,7 @@
     - ssh-user
 
 - name: "copy sshd_config template"
-  become: yes
+  become: true
   ansible.builtin.template:
     src: sshd_config.config.j2
     dest: "{{ ssh_directory }}/sshd_config"
@@ -68,7 +68,7 @@
     - ssh-system
 
 - name: "check ssh has short moduli (moduli >= {{ ssh_short_moduli }}, allowed)"
-  become: yes
+  become: true
   shell: "awk '$5 < {{ ssh_short_moduli }} { exit 1 }' /etc/ssh/moduli"
   changed_when: task5_check.rc == 1
   failed_when: task5_check.rc == 2
@@ -79,7 +79,7 @@
     - ssh-system
 
 - name: "deactivate ssh short moduli in two commands (moduli >= {{ ssh_short_moduli }}, allowed)"
-  become: yes
+  become: true
   shell: "awk '$5 >= {{ ssh_short_moduli }}' /etc/ssh/moduli > /etc/ssh/moduli.tmp && mv /etc/ssh/moduli.tmp /etc/ssh/moduli"
   register: task5
   when: task5_check.changed
@@ -88,7 +88,7 @@
     - ssh-system
 
 - name: "recreate ssh_host_* files"
-  become: yes
+  become: true
   shell: "{{ item }}"
   register: task6
   loop: "{{ ssh_host_keys_func | flatten(levels=1) }}"
