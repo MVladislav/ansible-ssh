@@ -146,8 +146,8 @@ GSSAPICleanupCredentials {{ ssh_gssapi_cleanup_credentials | ternary('yes', 'no'
 # If you just want the PAM account and session checks to run without
 # PAM authentication, then enable this but set PasswordAuthentication
 # and ChallengeResponseAuthentication to 'no'.
-{% if ssh_use_PAM is defined %}
-UsePAM {{ ssh_use_PAM | ternary('yes', 'no') }}
+{% if ssh_use_pam is defined %}
+UsePAM {{ ssh_use_pam | ternary('yes', 'no') }}
 {% else %}
 UsePAM yes
 {% endif %}

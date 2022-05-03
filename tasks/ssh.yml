@@ -3,11 +3,11 @@
 
 - name: install ssh dependencies
   become: true
-  apt:
+  ansible.builtin.apt:
     pkg: "{{ ssh_package_dependencies }}"
     state: present
-    force_apt_get: yes # apt-get instead of aptitude
-    update_cache: yes
+    force_apt_get: true # apt-get instead of aptitude
+    update_cache: true
   when: ssh_package_dependencies is defined and (ssh_package_dependencies | length>0)
   register: task1
   tags: ssh
@@ -58,7 +58,7 @@
   ansible.builtin.template:
     src: sshd_config.config.j2
     dest: "{{ ssh_directory }}/sshd_config"
-    backup: yes
+    backup: true
     owner: root
     group: root
     mode: "0644"
@@ -69,10 +69,10 @@
 
 - name: "check ssh has short moduli (moduli >= {{ ssh_short_moduli }}, allowed)"
   become: true
-  shell: "awk '$5 < {{ ssh_short_moduli }} { exit 1 }' /etc/ssh/moduli"
+  ansible.builtin.shell: "awk '$5 < {{ ssh_short_moduli }} { exit 1 }' /etc/ssh/moduli"
   changed_when: task5_check.rc == 1
   failed_when: task5_check.rc == 2
-  ignore_errors: yes
+  ignore_errors: true
   register: task5_check
   tags:
     - ssh
@@ -80,16 +80,16 @@
 
 - name: "deactivate ssh short moduli in two commands (moduli >= {{ ssh_short_moduli }}, allowed)"
   become: true
-  shell: "awk '$5 >= {{ ssh_short_moduli }}' /etc/ssh/moduli > /etc/ssh/moduli.tmp && mv /etc/ssh/moduli.tmp /etc/ssh/moduli"
+  ansible.builtin.shell: "awk '$5 >= {{ ssh_short_moduli }}' /etc/ssh/moduli > /etc/ssh/moduli.tmp && mv /etc/ssh/moduli.tmp /etc/ssh/moduli"
   register: task5
-  when: task5_check.changed
+  when: task5_check is defined and task5_check.changed
   tags:
     - ssh
     - ssh-system
 
 - name: "recreate ssh_host_* files"
   become: true
-  shell: "{{ item }}"
+  ansible.builtin.command: "{{ item }}"
   register: task6
   loop: "{{ ssh_host_keys_func | flatten(levels=1) }}"
   tags:
@@ -97,8 +97,13 @@
     - ssh-system
 
 - name: "restart openssh-server"
-  shell: echo "this task will restart the ssh services"
+  ansible.builtin.command: echo "this task will restart the ssh services"
   notify:
     - restart ssh
-  when: (task1 is defined and task1.changed) or (task2 is defined and task2.changed) or (task4 is defined and task4.changed) or (task5 is defined and task5.changed) or (task6 is defined and task6.changed)
+  when: >
+    (task1 is defined and task1.changed)
+    or (task2 is defined and task2.changed)
+    or (task4 is defined and task4.changed)
+    or (task5 is defined and task5.changed)
+    or (task6 is defined and task6.changed)
   tags: ssh

@@ -15,14 +15,14 @@ ssh_directory: /etc/ssh
 
 # ------------------------------------------------------------------------------
 ssh_short_moduli: 3071
-ssh_service_enabled: yes # start on boot
+ssh_service_enabled: true # start on boot
 
 # ------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------
 # template sshd_config.config.j2
 ssh_port: 22
-ssh_use_PAM: "yes"
+ssh_use_pam: "yes"
 ssh_use_dns: "no"
 ssh_accept_env: "LANG LC_*"
 ssh_print_motd: "no"
@@ -64,18 +64,18 @@ ssh_log_level: VERBOSE
 # possible values: prohibit-password, yes, no
 # note: this must be string not bool, so you need to quote 'yes' and 'no'
 ssh_permit_root_login: "no"
-ssh_strict_modes: yes
-ssh_pubkey_authentication: yes
+ssh_strict_modes: true
+ssh_pubkey_authentication: true
 ssh_pubkey_accepted_key_types:
   - ssh-ed25519
-ssh_password_authentication: no
-ssh_permit_empty_password: no
-ssh_challenge_response_authentication: no # yes?
-ssh_gssapi_authentication: no
-ssh_gssapi_cleanup_credentials: yes
-ssh_agent_forwarding: yes
-ssh_tcp_forwarding: yes
-ssh_x11_forwarding: no # yes?
+ssh_password_authentication: false
+ssh_permit_empty_password: false
+ssh_challenge_response_authentication: false # yes?
+ssh_gssapi_authentication: false
+ssh_gssapi_cleanup_credentials: true
+ssh_agent_forwarding: true
+ssh_tcp_forwarding: true
+ssh_x11_forwarding: false # yes?
 
 ssh_banner:
   src: path/to/local/ssh-banner
@@ -87,7 +87,7 @@ ssh_subsystems:
 
 # ------------------------------------------------------------------------------
 # template config.config.j2 (installed per user in ~/.ssh)
-ssh_hash_known_hosts: yes
+ssh_hash_known_hosts: true
 ssh_host_key_algorithms:
   - ssh-ed25519
   - ssh-ed25519-cert-v01@openssh.com
