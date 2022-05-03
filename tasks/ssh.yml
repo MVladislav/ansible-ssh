@@ -89,7 +89,7 @@
 
 - name: "recreate ssh_host_* files"
   become: true
-  ansible.builtin.command: "{{ item }}"
+  ansible.builtin.shell: "{{ item }}"
   register: task6
   loop: "{{ ssh_host_keys_func | flatten(levels=1) }}"
   tags:
