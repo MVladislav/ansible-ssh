@@ -17,7 +17,11 @@ Port {{ ssh_port }}
 {% else %}
 #Port 22
 {% endif %}
+{% if ssh_address_family is defined %}
+AddressFamily {{ ssh_address_family }}
+{% else %}
 #AddressFamily any
+{% endif %}
 #ListenAddress 0.0.0.0
 #ListenAddress ::
 

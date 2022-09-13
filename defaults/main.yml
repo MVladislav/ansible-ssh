@@ -22,6 +22,7 @@ ssh_service_enabled: true # start on boot
 # ------------------------------------------------------------------------------
 # template sshd_config.config.j2
 ssh_port: 22
+ssh_address_family: "inet"
 ssh_use_pam: "yes"
 ssh_use_dns: "no"
 ssh_accept_env: "LANG LC_*"
