@@ -1,5 +1,6 @@
 # ssh-keygen -t rsa -b 2048 -C "email@example.com"
-# ssh-keygen -t ed25519 -C "<comment>"
+# ssh-keygen -t ed25519 -C "$(hostname)-$(date +'%Y-%m-%d')-<comment>"
+# ssh-keygen -t ed25519-sk -C "$(hostname)-$(date +'%Y-%m-%d')-<comment>"
 # ------------------------------------------------------------------------------
 # Ensure KnownHosts are unreadable if leaked - it is otherwise easier to know which hosts your keys have access to.
 {% if ssh_host_key_algorithms is defined %}
