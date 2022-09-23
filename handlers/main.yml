@@ -2,7 +2,7 @@
 # handlers file for ./roles/ssh
 
 - name: restart ssh
-  become: yes
+  become: true
   listen: restart ssh
   service:
     name: ssh

@@ -1,0 +1,109 @@
+---
+# tasks file for ./roles/ssh
+
+- name: install ssh dependencies
+  become: true
+  ansible.builtin.apt:
+    pkg: "{{ ssh_package_dependencies }}"
+    state: present
+    force_apt_get: true # apt-get instead of aptitude
+    update_cache: true
+  when: ssh_package_dependencies is defined and (ssh_package_dependencies | length>0)
+  register: task1
+  tags: ssh
+
+# - name: "get user home dir (for user {{ outer_item.name }})"
+#   become: true
+#   shell: >
+#     getent passwd {{ outer_item.name }} | awk -F: '{ print $6 }'
+#   # become_user: "{{ outer_item.name }}"
+#   # shell: echo $HOME
+#   changed_when: false
+#   register: task_user_home
+
+# - name: "test (for user {{ outer_item.name }})"
+#   debug: var=task_user_home.stdout_lines[0]
+#   when: task_user_home is defined and task_user_home.stdout_lines is defined
+
+- name: "ensures ~/.ssh/config dir exists (for user {{ outer_item.name }})"
+  become: true
+  become_user: "{{ outer_item.name }}"
+  ansible.builtin.file:
+    path: "~/.ssh"
+    state: directory
+    owner: "{{ outer_item.name }}"
+    group: "{{ outer_item.name }}"
+    mode: "0700"
+  register: task3
+  tags:
+    - ssh
+    - ssh-user
+
+- name: "copy ssh config template for user (for user {{ outer_item.name }})"
+  become: true
+  become_user: "{{ outer_item.name }}"
+  ansible.builtin.template:
+    src: config.config.j2
+    dest: "~/.ssh/config"
+    owner: "{{ outer_item.name }}"
+    group: "{{ outer_item.name }}"
+    mode: "0600"
+  register: task4
+  tags:
+    - ssh
+    - ssh-user
+
+- name: "copy sshd_config template"
+  become: true
+  ansible.builtin.template:
+    src: sshd_config.config.j2
+    dest: "{{ ssh_directory }}/sshd_config"
+    backup: true
+    owner: root
+    group: root
+    mode: "0644"
+  register: task2
+  tags:
+    - ssh
+    - ssh-system
+
+- name: "check ssh has short moduli (moduli >= {{ ssh_short_moduli }}, allowed)"
+  become: true
+  ansible.builtin.shell: "awk '$5 < {{ ssh_short_moduli }} { exit 1 }' /etc/ssh/moduli"
+  changed_when: task5_check.rc == 1
+  failed_when: task5_check.rc == 2
+  ignore_errors: true
+  register: task5_check
+  tags:
+    - ssh
+    - ssh-system
+
+- name: "deactivate ssh short moduli in two commands (moduli >= {{ ssh_short_moduli }}, allowed)"
+  become: true
+  ansible.builtin.shell: "awk '$5 >= {{ ssh_short_moduli }}' /etc/ssh/moduli > /etc/ssh/moduli.tmp && mv /etc/ssh/moduli.tmp /etc/ssh/moduli"
+  register: task5
+  when: task5_check is defined and task5_check.changed
+  tags:
+    - ssh
+    - ssh-system
+
+- name: "recreate ssh_host_* files"
+  become: true
+  ansible.builtin.shell: "{{ item }}"
+  register: task6
+  loop: "{{ ssh_host_keys_func | flatten(levels=1) }}"
+  tags:
+    - ssh
+    - ssh-system
+
+- name: "restart openssh-server"
+  ansible.builtin.command: echo "this task will restart the ssh services"
+  notify:
+    - restart ssh
+  when: >
+    (task1 is defined and task1.changed)
+    or (task2 is defined and task2.changed)
+    or (task4 is defined and task4.changed)
+    or (task5 is defined and task5.changed)
+    or (task6 is defined and task6.changed)
+  tags: ssh
