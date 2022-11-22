@@ -102,12 +102,3 @@ ssh_host_key_algorithms:
 ssh_user_kex_algorithms: "{{ ssh_kex_algorithms }}"
 ssh_user_macs: "{{ ssh_macs }}"
 ssh_user_ciphers: "{{ ssh_ciphers }}"
-
-# ------------------------------------------------------------------------------
-# ------------------------------------------------------------------------------
-# ------------------------------------------------------------------------------
-# template jail.local.j2
-jail_bantime: 3600
-jail_banaction: iptables-multiport
-jail_enabled: true
-jail_maxretry: 3
