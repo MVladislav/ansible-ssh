@@ -7,7 +7,3 @@
   loop: "{{ clients | flatten(levels=1) }}"
   loop_control:
     loop_var: outer_item
-
-# configure fail2ban
-- name: config fail2ban
-  ansible.builtin.include_tasks: fail2ban.yml
