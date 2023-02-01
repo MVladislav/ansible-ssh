@@ -1,10 +1,10 @@
 ---
 # handlers file for ./roles/ssh
 
-- name: restart ssh
+- name: "SSH | restart ssh"
   become: true
   listen: restart ssh
-  service:
+  ansible.builtin.service:
     name: ssh
     state: restarted
     enabled: "{{ ssh_service_enabled }}"

@@ -2,8 +2,12 @@
 # tasks file for ./roles/ssh
 
 # configure ssh
-- name: config ssh (and per user)
+- name: "SSH | config ssh - global"
   ansible.builtin.include_tasks: ssh.yml
+
+# configure ssh per user
+- name: "SSH | config ssh - per user"
+  ansible.builtin.include_tasks: ssh-user.yml
   loop: "{{ clients | flatten(levels=1) }}"
   loop_control:
     loop_var: outer_item
