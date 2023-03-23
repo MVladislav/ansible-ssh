@@ -60,8 +60,6 @@
   tags:
     - ssh
 
-# NOTE: will not check for changed, because of idempotence
-# NOTE: not checked for error, because rm file could be not exists which is ok
 - name: "SSH | command | recreate ssh_host_* files"
   become: true
   ansible.builtin.command: "{{ item }}"
@@ -71,4 +69,5 @@
   notify: restart ssh
   loop: "{{ ssh_host_keys_func | flatten(levels=1) }}"
   tags:
+    - molecule-idempotence-notest
     - ssh

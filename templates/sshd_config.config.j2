@@ -51,13 +51,23 @@ KexAlgorithms {{ ssh_kex_algorithms | join(',') }}
 MACs {{ ssh_macs | join(',') }}
 {% endif %}
 
+# Password based logins are disabled - only public key based logins are allowed.
+AuthenticationMethods publickey
+
+# TODO: extend for 2FA
+#AuthenticationMethods publickey,keyboard-interactive:pam
+#KbdInteractiveAuthentication yes
+# Ensure /bin/login is not used so that it cannot bypass PAM settings for sshd.
+# Note, this option is no longer needed as of OpenSSH 7.4 as support for UseLogin has been removed
+#UseLogin no
+
 # Logging
 #SyslogFacility AUTH
 # LogLevel VERBOSE logs user's key fingerprint on login. Needed to have a clear audit track of which key was using to log in.
 {% if ssh_log_level is defined %}
 LogLevel {{ ssh_log_level }}
 {% else %}
-#LogLevel INFO
+#LogLevel VERBOSE
 {% endif %}
 
 # Authentication:
@@ -66,7 +76,7 @@ LogLevel {{ ssh_log_level }}
 {% if ssh_permit_root_login is defined %}
 PermitRootLogin {{ ssh_permit_root_login }}
 {% else %}
-#PermitRootLogin prohibit-password
+#PermitRootLogin no
 {% endif %}
 {% if ssh_strict_modes is defined %}
 StrictModes {{ ssh_strict_modes | ternary('yes', 'no') }}
@@ -79,7 +89,7 @@ StrictModes {{ ssh_strict_modes | ternary('yes', 'no') }}
 {% if ssh_pubkey_authentication is defined %}
 PubkeyAuthentication {{ ssh_pubkey_authentication | ternary('yes', 'no') }}
 {% else %}
-#PubkeyAuthentication yes
+PubkeyAuthentication yes
 {% endif %}
 {% if ssh_pubkey_accepted_key_types is defined %}
 PubkeyAcceptedKeyTypes {{ ssh_pubkey_accepted_key_types | join(',') }}
@@ -105,7 +115,7 @@ PubkeyAcceptedKeyTypes {{ ssh_pubkey_accepted_key_types | join(',') }}
 {% if ssh_password_authentication is defined %}
 PasswordAuthentication {{ ssh_password_authentication | ternary('yes', 'no') }}
 {% else %}
-#PasswordAuthentication yes
+PasswordAuthentication no
 {% endif %}
 {% if ssh_permit_empty_password is defined %}
 PermitEmptyPasswords {{ ssh_permit_empty_password | ternary('yes', 'no') }}
@@ -214,16 +224,16 @@ AcceptEnv LANG LC_*
 
 
 {% if ssh_subsystems is defined %}
-{% if ssh_subsystems | length %}
 
+{% if ssh_subsystems | length %}
 {% for subsystem in ssh_subsystems %}
 Subsystem	{{ subsystem.name }}	{{ subsystem.command }}
 {% endfor %}
 {% endif %}
-{% else %}
 
-# override default of no subsystems
-Subsystem	sftp	/usr/lib/ssh/sftp-server
+{% else %}
+# Log sftp level file access (read/write/etc.) that would not be easily logged otherwise.
+Subsystem sftp  /usr/lib/ssh/sftp-server -f AUTHPRIV -l INFO
 {% endif %}
 
 {% if ssh_users is defined %}

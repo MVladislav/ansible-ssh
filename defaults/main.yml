@@ -49,16 +49,24 @@ ssh_ciphers:
   - aes128-ctr
 
 ssh_kex_algorithms:
-  - curve25519-sha256
+  # - curve25519-sha256
+  # - curve25519-sha256@libssh.org
+  # - diffie-hellman-group16-sha512
+  # - diffie-hellman-group18-sha512
+  # - diffie-hellman-group-exchange-sha256
   - curve25519-sha256@libssh.org
-  - diffie-hellman-group16-sha512
-  - diffie-hellman-group18-sha512
+  - ecdh-sha2-nistp521
+  - ecdh-sha2-nistp384
+  - ecdh-sha2-nistp256
   - diffie-hellman-group-exchange-sha256
 
 ssh_macs:
-  - hmac-sha2-256-etm@openssh.com
   - hmac-sha2-512-etm@openssh.com
+  - hmac-sha2-256-etm@openssh.com
   - umac-128-etm@openssh.com
+  - hmac-sha2-512
+  - hmac-sha2-256
+  - umac-128@openssh.com
 
 ssh_log_level: VERBOSE
 
@@ -90,14 +98,24 @@ ssh_subsystems:
 # template config.config.j2 (installed per user in ~/.ssh)
 ssh_hash_known_hosts: true
 ssh_host_key_algorithms:
-  - ssh-ed25519
+  # - ssh-ed25519
+  # - ssh-ed25519-cert-v01@openssh.com
+  # - sk-ssh-ed25519@openssh.com
+  # - sk-ssh-ed25519-cert-v01@openssh.com
+  # - rsa-sha2-256
+  # - rsa-sha2-256-cert-v01@openssh.com
+  # - rsa-sha2-512
+  # - rsa-sha2-512-cert-v01@openssh.com
   - ssh-ed25519-cert-v01@openssh.com
-  - sk-ssh-ed25519@openssh.com
-  - sk-ssh-ed25519-cert-v01@openssh.com
-  - rsa-sha2-256
-  - rsa-sha2-256-cert-v01@openssh.com
-  - rsa-sha2-512
-  - rsa-sha2-512-cert-v01@openssh.com
+  - ssh-rsa-cert-v01@openssh.com
+  - ssh-ed25519
+  - ssh-rsa
+  - ecdsa-sha2-nistp521-cert-v01@openssh.com
+  - ecdsa-sha2-nistp384-cert-v01@openssh.com
+  - ecdsa-sha2-nistp256-cert-v01@openssh.com
+  - ecdsa-sha2-nistp521
+  - ecdsa-sha2-nistp384
+  - ecdsa-sha2-nistp256
 
 ssh_user_kex_algorithms: "{{ ssh_kex_algorithms }}"
 ssh_user_macs: "{{ ssh_macs }}"

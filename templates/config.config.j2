@@ -1,6 +1,14 @@
-# ssh-keygen -t rsa -b 2048 -C "email@example.com"
-# ssh-keygen -t ed25519 -C "$(hostname)-$(date +'%Y-%m-%d')-<comment>"
-# ssh-keygen -t ed25519-sk -C "$(hostname)-$(date +'%Y-%m-%d')-<comment>"
+# {{ ansible_managed }}
+
+# RSA keys are favored over ECDSA keys when backward compatibility ''is required'',
+# thus, newly generated keys are always either ED25519 or RSA (NOT ECDSA or DSA).
+# ssh-keygen -t rsa -b 4096 -f ~/.ssh/id_rsa_comment_$(date +%Y-%m-%d)     -C "$(hostname)-$(date +%Y-%m-%d)-comment"
+
+# ED25519 keys are favored over RSA keys when backward compatibility ''is not required''.
+# This is only compatible with OpenSSH 6.5+ and fixed-size (256 bytes).
+# ssh-keygen -t ed25519     -f ~/.ssh/id_ed25519_comment_$(date +%Y-%m-%d) -C "$(hostname)-$(date +%Y-%m-%d)-comment"
+# ssh-keygen -t ed25519-sk  -f ~/.ssh/id_ed25519_comment_$(date +%Y-%m-%d) -C "$(hostname)-$(date +%Y-%m-%d)-comment"
+
 # ------------------------------------------------------------------------------
 # Ensure KnownHosts are unreadable if leaked - it is otherwise easier to know which hosts your keys have access to.
 {% if ssh_host_key_algorithms is defined %}
