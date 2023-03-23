@@ -54,6 +54,7 @@
   args:
     executable: /bin/bash
   notify: restart ssh
+  changed_when: true
   when:
     - task5_check is defined
     - task5_check.changed | bool
