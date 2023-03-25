@@ -61,14 +61,24 @@
   tags:
     - ssh
 
-- name: "SSH | command | recreate ssh_host_* files"
+# ------------------------------------------------------------------------------
+- name: "SSH | command | recreate ssh_host_* files - remove existing"
+  become: true
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: absent
+  loop: "{{ ssh_host_keys_func_rm | flatten(levels=1) }}"
+  tags:
+    - ssh
+
+- name: "SSH | command | recreate ssh_host_* files - regenerate new"
   become: true
   ansible.builtin.command: "{{ item }}"
   register: is_ssh_recreated
   changed_when: is_ssh_recreated.rc not in [0,1]
   failed_when: is_ssh_recreated.rc not in [0,1]
   notify: restart ssh
-  loop: "{{ ssh_host_keys_func | flatten(levels=1) }}"
+  loop: "{{ ssh_host_keys_func_gen | flatten(levels=1) }}"
   tags:
     - molecule-idempotence-notest
     - ssh
