@@ -15,12 +15,12 @@ Include /etc/ssh/sshd_config.d/*.conf
 {% if ssh_port is defined %}
 Port {{ ssh_port }}
 {% else %}
-#Port 22
+Port 22
 {% endif %}
 {% if ssh_address_family is defined %}
 AddressFamily {{ ssh_address_family }}
 {% else %}
-#AddressFamily any
+AddressFamily any
 {% endif %}
 #ListenAddress 0.0.0.0
 #ListenAddress ::
@@ -67,24 +67,23 @@ AuthenticationMethods publickey
 {% if ssh_log_level is defined %}
 LogLevel {{ ssh_log_level }}
 {% else %}
-#LogLevel VERBOSE
+LogLevel VERBOSE
 {% endif %}
 
-# Authentication:
-
+# Authentication
 #LoginGraceTime 2m
 {% if ssh_permit_root_login is defined %}
 PermitRootLogin {{ ssh_permit_root_login }}
 {% else %}
-#PermitRootLogin no
+PermitRootLogin no
 {% endif %}
 {% if ssh_strict_modes is defined %}
 StrictModes {{ ssh_strict_modes | ternary('yes', 'no') }}
 {% else %}
-#StrictModes yes
+StrictModes yes
 {% endif %}
-#MaxAuthTries 6
-#MaxSessions 10
+MaxAuthTries 4
+MaxSessions 10
 
 {% if ssh_pubkey_authentication is defined %}
 PubkeyAuthentication {{ ssh_pubkey_authentication | ternary('yes', 'no') }}
@@ -95,21 +94,18 @@ PubkeyAuthentication yes
 PubkeyAcceptedKeyTypes {{ ssh_pubkey_accepted_key_types | join(',') }}
 {% endif %}
 
-# Expect .ssh/authorized_keys2 to be disregarded by default in future.
-#AuthorizedKeysFile	.ssh/authorized_keys .ssh/authorized_keys2
+AuthorizedKeysFile	.ssh/authorized_keys
 
 #AuthorizedPrincipalsFile none
-
 #AuthorizedKeysCommand none
 #AuthorizedKeysCommandUser nobody
 
 # For this to work you will also need host keys in /etc/ssh/ssh_known_hosts
-#HostbasedAuthentication no
+HostbasedAuthentication no
 # Change to yes if you don't trust ~/.ssh/known_hosts for
-# HostbasedAuthentication
 #IgnoreUserKnownHosts no
 # Don't read the user's ~/.rhosts and ~/.shosts files
-#IgnoreRhosts yes
+IgnoreRhosts yes
 
 # To disable tunneled clear text passwords, change to no here!
 {% if ssh_password_authentication is defined %}
@@ -120,7 +116,7 @@ PasswordAuthentication no
 {% if ssh_permit_empty_password is defined %}
 PermitEmptyPasswords {{ ssh_permit_empty_password | ternary('yes', 'no') }}
 {% else %}
-#PermitEmptyPasswords no
+PermitEmptyPasswords no
 {% endif %}
 
 # Change to yes to enable challenge-response passwords (beware issues with
@@ -141,12 +137,12 @@ ChallengeResponseAuthentication no
 {% if ssh_gssapi_authentication is defined %}
 GSSAPIAuthentication {{ ssh_gssapi_authentication | ternary('yes', 'no') }}
 {% else %}
-#GSSAPIAuthentication no
+GSSAPIAuthentication no
 {% endif %}
 {% if ssh_gssapi_cleanup_credentials is defined %}
 GSSAPICleanupCredentials {{ ssh_gssapi_cleanup_credentials | ternary('yes', 'no') }}
 {% else %}
-#GSSAPICleanupCredentials yes
+GSSAPICleanupCredentials yes
 {% endif %}
 #GSSAPIStrictAcceptorCheck yes
 #GSSAPIKeyExchange no
@@ -170,18 +166,18 @@ UsePAM yes
 {% if ssh_agent_forwarding is defined %}
 AllowAgentForwarding {{ ssh_agent_forwarding | ternary('yes', 'no') }}
 {% else %}
-#AllowAgentForwarding yes
+AllowAgentForwarding yes
 {% endif %}
 {% if ssh_tcp_forwarding is defined %}
 AllowTcpForwarding {{ ssh_tcp_forwarding | ternary('yes', 'no') }}
 {% else %}
-#AllowTcpForwarding yes
+AllowTcpForwarding no
 {% endif %}
 #GatewayPorts no
 {% if ssh_x11_forwarding is defined %}
 X11Forwarding {{ ssh_x11_forwarding | ternary('yes', 'no') }}
 {% else %}
-X11Forwarding yes
+X11Forwarding no
 {% endif %}
 #X11DisplayOffset 10
 #X11UseLocalhost yes
@@ -200,7 +196,7 @@ PrintMotd no
 {% if ssh_use_dns is defined %}
 UseDNS {{ ssh_use_dns | ternary('yes', 'no') }}
 {% else %}
-#UseDNS no
+UseDNS no
 {% endif %}
 #PidFile /var/run/sshd.pid
 #MaxStartups 10:30:100
@@ -208,10 +204,9 @@ UseDNS {{ ssh_use_dns | ternary('yes', 'no') }}
 #ChrootDirectory none
 #VersionAddendum none
 
-{% if ssh_banner is defined and ssh_banner.dest is defined %}
-Banner {{ ssh_banner.dest }}
+{% if ssh_banner is defined %}
+Banner {{ ssh_banner }}
 {% else %}
-# no default banner path
 #Banner none
 {% endif %}
 
@@ -222,15 +217,12 @@ AcceptEnv {{ ssh_accept_env }}
 AcceptEnv LANG LC_*
 {% endif %}
 
-
 {% if ssh_subsystems is defined %}
-
 {% if ssh_subsystems | length %}
 {% for subsystem in ssh_subsystems %}
 Subsystem	{{ subsystem.name }}	{{ subsystem.command }}
 {% endfor %}
 {% endif %}
-
 {% else %}
 # Log sftp level file access (read/write/etc.) that would not be easily logged otherwise.
 Subsystem sftp  /usr/lib/ssh/sftp-server -f AUTHPRIV -l INFO
@@ -254,8 +246,8 @@ Match User {{ user.name }}
 {% else %}
 # Example of overriding settings on a per-user basis
 #Match User anoncvs
-#	X11Forwarding no
-#	AllowTcpForwarding no
-#	PermitTTY no
-#	ForceCommand cvs server
+#X11Forwarding no
+#AllowTcpForwarding no
+#PermitTTY no
+#ForceCommand cvs server
 {% endif %}

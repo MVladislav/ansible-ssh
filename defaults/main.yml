@@ -23,10 +23,10 @@ ssh_service_enabled: true # start on boot
 # template sshd_config.config.j2
 ssh_port: 22
 ssh_address_family: "inet"
-ssh_use_pam: "yes"
-ssh_use_dns: "no"
+ssh_use_pam: true
+ssh_use_dns: false
 ssh_accept_env: "LANG LC_*"
-ssh_print_motd: "no"
+ssh_print_motd: false
 # ssh_authentication_methods: publickey
 # ssh_use_privilege_separation: sandbox
 
@@ -42,6 +42,19 @@ ssh_host_keys_func_gen:
   - ssh-keygen -t ed25519 -f /etc/ssh/ssh_host_ed25519_key -N ''
   - ssh-keygen -t rsa -b 4096 -f /etc/ssh/ssh_host_rsa_key -N ''
 
+ssh_kex_algorithms:
+  - curve25519-sha256@libssh.org
+  - ecdh-sha2-nistp521
+  - ecdh-sha2-nistp384
+  - ecdh-sha2-nistp256
+  - diffie-hellman-group-exchange-sha256
+ssh_macs:
+  - hmac-sha2-512-etm@openssh.com
+  - hmac-sha2-256-etm@openssh.com
+  - umac-128-etm@openssh.com
+  - hmac-sha2-512
+  - hmac-sha2-256
+  - umac-128@openssh.com
 ssh_ciphers:
   - chacha20-poly1305@openssh.com
   - aes256-gcm@openssh.com
@@ -50,31 +63,12 @@ ssh_ciphers:
   - aes192-ctr
   - aes128-ctr
 
-ssh_kex_algorithms:
-  # - curve25519-sha256
-  # - curve25519-sha256@libssh.org
-  # - diffie-hellman-group16-sha512
-  # - diffie-hellman-group18-sha512
-  # - diffie-hellman-group-exchange-sha256
-  - curve25519-sha256@libssh.org
-  - ecdh-sha2-nistp521
-  - ecdh-sha2-nistp384
-  - ecdh-sha2-nistp256
-  - diffie-hellman-group-exchange-sha256
-
-ssh_macs:
-  - hmac-sha2-512-etm@openssh.com
-  - hmac-sha2-256-etm@openssh.com
-  - umac-128-etm@openssh.com
-  - hmac-sha2-512
-  - hmac-sha2-256
-  - umac-128@openssh.com
-
 ssh_log_level: VERBOSE
 
-# possible values: prohibit-password, yes, no
-# note: this must be string not bool, so you need to quote 'yes' and 'no'
+# NOTE: possible values: "prohibit-password", "yes", "no"
+# NOTE: this must be string not bool, so you need to quote "yes" and "no"
 ssh_permit_root_login: "no"
+
 ssh_strict_modes: true
 ssh_pubkey_authentication: true
 ssh_pubkey_accepted_key_types:
@@ -85,12 +79,10 @@ ssh_challenge_response_authentication: false # yes?
 ssh_gssapi_authentication: false
 ssh_gssapi_cleanup_credentials: true
 ssh_agent_forwarding: true
-ssh_tcp_forwarding: true
-ssh_x11_forwarding: false # yes?
+ssh_tcp_forwarding: false
+ssh_x11_forwarding: false
 
-ssh_banner:
-  src: path/to/local/ssh-banner
-  dest: /etc/ssh/banner
+ssh_banner: /etc/issue.net
 
 ssh_subsystems:
   - name: sftp
@@ -100,14 +92,6 @@ ssh_subsystems:
 # template config.config.j2 (installed per user in ~/.ssh)
 ssh_hash_known_hosts: true
 ssh_host_key_algorithms:
-  # - ssh-ed25519
-  # - ssh-ed25519-cert-v01@openssh.com
-  # - sk-ssh-ed25519@openssh.com
-  # - sk-ssh-ed25519-cert-v01@openssh.com
-  # - rsa-sha2-256
-  # - rsa-sha2-256-cert-v01@openssh.com
-  # - rsa-sha2-512
-  # - rsa-sha2-512-cert-v01@openssh.com
   - ssh-ed25519-cert-v01@openssh.com
   - ssh-rsa-cert-v01@openssh.com
   - ssh-ed25519
