@@ -88,6 +88,7 @@
     - item.path is defined
   tags:
     - ssh
+    - molecule-idempotence-notest
 
 - name: "SSH | command | recreate ssh_host_* files - regenerate new"
   become: true
