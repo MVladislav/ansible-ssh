@@ -5,6 +5,8 @@
 clients:
   - name: "{{ ansible_user }}"
 
+ssh_only_client_setup: false
+
 # ------------------------------------------------------------------------------
 ssh_package_dependencies:
   - openssh-server
