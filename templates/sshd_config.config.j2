@@ -225,7 +225,7 @@ Subsystem	{{ subsystem.name }}	{{ subsystem.command }}
 {% endif %}
 {% else %}
 # Log sftp level file access (read/write/etc.) that would not be easily logged otherwise.
-Subsystem sftp  /usr/lib/ssh/sftp-server -f AUTHPRIV -l INFO
+Subsystem       sftp    /usr/lib/openssh/sftp-server -f AUTHPRIV -l INFO
 {% endif %}
 
 {% if ssh_users is defined %}
