@@ -82,8 +82,16 @@ StrictModes {{ ssh_strict_modes | ternary('yes', 'no') }}
 {% else %}
 StrictModes yes
 {% endif %}
+{% if ssh_max_auth_tries is defined %}
+MaxAuthTries {{ ssh_max_auth_tries }}
+{% else %}
 MaxAuthTries 4
+{% endif %}
+{% if ssh_max_sessions is defined %}
+MaxSessions {{ ssh_max_sessions }}
+{% else %}
 MaxSessions 10
+{% endif %}
 
 {% if ssh_pubkey_authentication is defined %}
 PubkeyAuthentication {{ ssh_pubkey_authentication | ternary('yes', 'no') }}
@@ -162,9 +170,8 @@ UsePAM {{ ssh_use_pam | ternary('yes', 'no') }}
 UsePAM yes
 {% endif %}
 
-
-{% if ssh_agent_forwarding is defined %}
-AllowAgentForwarding {{ ssh_agent_forwarding | ternary('yes', 'no') }}
+{% if ssh_allow_agent_forwarding is defined %}
+AllowAgentForwarding {{ ssh_allow_agent_forwarding | ternary('yes', 'no') }}
 {% else %}
 AllowAgentForwarding yes
 {% endif %}
@@ -188,11 +195,19 @@ PrintMotd {{ ssh_print_motd | ternary('yes', 'no') }}
 PrintMotd no
 {% endif %}
 #PrintLastLog yes
-#TCPKeepAlive yes
+{% if ssh_tcp_keep_alive is defined %}
+TCPKeepAlive {{ ssh_tcp_keep_alive | ternary('yes', 'no') }}
+{% else %}
+TCPKeepAlive yes
+{% endif %}
 #PermitUserEnvironment no
 #Compression delayed
 #ClientAliveInterval 0
-#ClientAliveCountMax 3
+{% if ssh_client_alive_count_max is defined %}
+ClientAliveCountMax {{ ssh_client_alive_count_max }}
+{% else %}
+ClientAliveCountMax 3
+{% endif %}
 {% if ssh_use_dns is defined %}
 UseDNS {{ ssh_use_dns | ternary('yes', 'no') }}
 {% else %}

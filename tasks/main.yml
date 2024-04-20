@@ -4,7 +4,8 @@
 # configure ssh
 - name: "SSH | config ssh - global"
   ansible.builtin.include_tasks: ssh.yml
-  when: ssh_only_client_setup is not defined or not ssh_only_client_setup | bool
+  when:
+    - ssh_only_client_setup is not defined or not ssh_only_client_setup | bool
 
 # configure ssh per user
 - name: "SSH | config ssh - per user"

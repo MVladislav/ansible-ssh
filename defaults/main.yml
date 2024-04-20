@@ -32,6 +32,11 @@ ssh_print_motd: false
 # ssh_authentication_methods: publickey
 # ssh_use_privilege_separation: sandbox
 
+ssh_client_alive_count_max: 2
+ssh_max_auth_tries: 3
+ssh_max_sessions: 2
+ssh_tcp_keep_alive: false
+
 ssh_host_keys:
   - /etc/ssh/ssh_host_rsa_key
   # - /etc/ssh/ssh_host_ecdsa_key
@@ -51,14 +56,13 @@ ssh_kex_algorithms:
   - ecdh-sha2-nistp256
   - diffie-hellman-group-exchange-sha256
 ssh_macs:
-  - hmac-sha2-512-etm@openssh.com
-  - hmac-sha2-256-etm@openssh.com
-  - umac-128-etm@openssh.com
+  # - hmac-sha2-512-etm@openssh.com # NOTE: (CVE-2023-48795)
+  # - hmac-sha2-256-etm@openssh.com # NOTE: (CVE-2023-48795)
   - hmac-sha2-512
   - hmac-sha2-256
   - umac-128@openssh.com
 ssh_ciphers:
-  - chacha20-poly1305@openssh.com
+  # - chacha20-poly1305@openssh.com # NOTE: (CVE-2023-48795)
   - aes256-gcm@openssh.com
   - aes128-gcm@openssh.com
   - aes256-ctr
@@ -77,10 +81,10 @@ ssh_pubkey_accepted_key_types:
   - ssh-ed25519
 ssh_password_authentication: false
 ssh_permit_empty_password: false
-ssh_challenge_response_authentication: false # yes?
+ssh_challenge_response_authentication: false
 ssh_gssapi_authentication: false
 ssh_gssapi_cleanup_credentials: true
-ssh_agent_forwarding: true
+ssh_allow_agent_forwarding: false
 ssh_tcp_forwarding: false
 ssh_x11_forwarding: false
 
@@ -88,7 +92,7 @@ ssh_banner: /etc/issue.net
 
 ssh_subsystems:
   - name: sftp
-    command: /usr/lib/ssh/sftp-server -f AUTHPRIV -l INFO
+    command: /usr/lib/openssh/sftp-server -f AUTHPRIV -l INFO
 
 # ------------------------------------------------------------------------------
 # template config.config.j2 (installed per user in ~/.ssh)
