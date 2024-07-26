@@ -16,7 +16,7 @@
 #   when: task_user_home is defined and task_user_home.stdout_lines is defined
 
 # ------------------------------------------------------------------------------
-- name: "SSH | file | ensures ~/.ssh/config dir exists - for user {{ outer_item.name }}"
+- name: "SSH | user | ensures ~/.ssh/config dir exists"
   become: true
   become_user: "{{ outer_item.name }}"
   ansible.builtin.file:
@@ -25,12 +25,12 @@
     owner: "{{ outer_item.name }}"
     group: "{{ outer_item.name }}"
     mode: "0700"
-  notify: restart ssh
+  notify: Restart SSH
   tags:
     - ssh
     - ssh-user
 
-- name: "SSH | copy | copy ssh config template for user - for user {{ outer_item.name }}"
+- name: "SSH | user | copy ssh config template for user"
   become: true
   become_user: "{{ outer_item.name }}"
   ansible.builtin.template:
@@ -39,7 +39,7 @@
     owner: "{{ outer_item.name }}"
     group: "{{ outer_item.name }}"
     mode: "0600"
-  notify: restart ssh
+  notify: Restart SSH
   tags:
     - ssh
     - ssh-user
