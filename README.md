@@ -1,5 +1,10 @@
 # SSH
 
+> [!IMPORTANT]  
+> Project is **Archive** and moved into **<https://github.com/MVladislav/ansible-security>**
+
+---
+
 [![Ansible Lint](https://github.com/MVladislav/ansible-ssh/actions/workflows/ansible-lint.yml/badge.svg)](https://github.com/MVladislav/ansible-ssh/actions/workflows/ansible-lint.yml)
 [![Ansible Molecule Test](https://github.com/MVladislav/ansible-ssh/actions/workflows/ci.yml/badge.svg)](https://github.com/MVladislav/ansible-ssh/actions/workflows/ci.yml)
 
